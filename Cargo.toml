@@ -19,3 +19,4 @@ custom_error = "^1.4"
 pretty_env_logger = "0.3"
 futures-retry = { git = "https://gitlab.com/xoac/futures-retry", branch = "sink" }
 reqwest = "0.9"
+

@@ -7,6 +7,9 @@ mod error;
 mod fs_receiver;
 mod fs_sender;
 
+use fs_sender::{UnboundedFileSender};
+
+
 /// This channel will send all items through file system. It's recommended to use channel.
 pub fn unbounded_file<T>(
     path: PathBuf,
@@ -20,8 +23,6 @@ pub fn unbounded_file<T>(
 where
     T: Serialize + DeserializeOwned,
 {
-    // TODO first open reciver -- file can be marked readonly -- that mean sender should be opened
-    // in the next file!
     Ok((
         fs_sender::unbounded::<T>(&path)?,
         fs_receiver::new::<T>(path)?,
