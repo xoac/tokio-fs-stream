@@ -76,7 +76,7 @@ pub struct FileReciver<T> {
 }
 
 pub fn new<T>(path: PathBuf) -> io::Result<FileReciver<T>> {
-    let read_fd_std = dbg!(std::fs::OpenOptions::new().read(true).open(path.clone())?);
+    let read_fd_std = std::fs::OpenOptions::new().read(true).open(path.clone())?;
     let read_file = File::from_std(read_fd_std);
     let reader: AsyncBincodeReader<File, T> = read_file.into();
     Ok(FileReciver {

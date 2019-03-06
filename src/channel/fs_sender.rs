@@ -35,10 +35,10 @@ enum ClosingFile {
 /// # Warning
 /// It's logical error to use file that already exist on file system with unknow body.
 pub fn unbounded<T>(path: &PathBuf) -> io::Result<UnboundedFileSender<T>> {
-    let write_fd_std = dbg!(std::fs::OpenOptions::new()
+    let write_fd_std = std::fs::OpenOptions::new()
         .create(true)
         .append(true)
-        .open(path)?);
+        .open(path)?;
 
     let write_file = File::from_std(write_fd_std);
     let writer: AsyncBincodeWriter<File, T, SyncDestination> = write_file.into();
@@ -499,7 +499,7 @@ where
                 Async::Ready(None) => self.stream_closed = Closing::DirSender,
                 Async::NotReady => {
                     trace!("Stream is not ready!");
-                    dbg!(try_ready!(self.try_sink_or_dir_poll_complete()));
+                    try_ready!(self.try_sink_or_dir_poll_complete());
                 }
             }
         }
