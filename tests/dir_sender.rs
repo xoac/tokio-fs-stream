@@ -20,7 +20,11 @@ fn dir_sender_naive() {
     let send_to_fs = s.send_all(stream);
 
     tokio::run(futures::lazy(move || {
-        tokio::spawn(send_to_fs.map(drop).map_err(|err| eprintln!("Send to file {:?}", err)));
+        tokio::spawn(
+            send_to_fs
+                .map(drop)
+                .map_err(|err| eprintln!("Send to file {:?}", err)),
+        );
 
         tokio::spawn(
             r.collect()

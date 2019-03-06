@@ -28,7 +28,8 @@ pub fn main() {
                 item += 1;
                 println!("Sending {:?}", item);
                 Ok(item)
-            }).map_err(|err| panic!("Error {:?}", err));
+            })
+            .map_err(|err| panic!("Error {:?}", err));
 
         let sending_worker = async_writer
             .sink_map_err(|err| panic!("Sink map err {:?}", err))
@@ -44,7 +45,8 @@ pub fn main() {
                     .for_each(|item| {
                         println!("Received item {}", item);
                         Ok(())
-                    }).map_err(|err| panic!("Reading stream error {:?}", err))
+                    })
+                    .map_err(|err| panic!("Reading stream error {:?}", err))
                     .map(|_| println!("Reading eneded"))
             });
         tokio::spawn(reading_stream);

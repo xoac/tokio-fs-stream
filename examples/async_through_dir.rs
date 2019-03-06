@@ -7,7 +7,6 @@ use tokio::timer::Delay;
 use tokio_fs_stream::channel;
 
 pub fn main() {
-
     pretty_env_logger::init();
     // we create sender and reciver throught fs.
     let (sender, reciver) = channel::unordered_dir_fs(PathBuf::from("test_dir"), 100).unwrap();
@@ -16,7 +15,7 @@ pub fn main() {
     let items = iter_ok::<_, std::io::Error>(vec![1u32, 2, 3, 4]).and_then(|item| {
         Delay::new(Instant::now() + Duration::from_millis(30))
             .map_err(|_err| unimplemented!())
-             .and_then(move |_| Ok(item))
+            .and_then(move |_| Ok(item))
     });
 
     // Send all items to file.

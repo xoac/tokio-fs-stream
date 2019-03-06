@@ -72,7 +72,6 @@ where
         // We should also notice when we closed succesfully to panic when start_send or
         // poll_complete is called after close.
 
-
         if self.closing == ClosingFile::None {
             self.closing = ClosingFile::PollComplete;
         }

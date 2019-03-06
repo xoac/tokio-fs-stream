@@ -9,11 +9,6 @@
 pub mod channel;
 //mod stream;
 
-
 // TODO before #![deny(missing_docs)]
 
-pub use {
-    channel::SinkFsExt,
-};
-
-
+pub use channel::SinkFsExt;

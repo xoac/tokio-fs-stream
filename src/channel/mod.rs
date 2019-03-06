@@ -7,8 +7,7 @@ mod error;
 mod fs_receiver;
 mod fs_sender;
 
-use fs_sender::{UnboundedFileSender};
-
+use fs_sender::UnboundedFileSender;
 
 /// This channel will send all items through file system. It's recommended to use channel.
 pub fn unbounded_file<T>(
