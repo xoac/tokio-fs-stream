@@ -22,10 +22,10 @@ jobs:
 
 
 # Try cross compiling
-- template: ci/azure-cross-compile.yml
+- template: ci/azure-cross-docker.yml
   parameters:
     name: cross_arm
-    target: arm-unknown-linux-musleabi
+    container: messense/rust-musl-cross:armv7-musleabihf
 
 # This represents the minimum Rust version supported by
 # Tokio. Updating this should be done in a dedicated PR and
@@ -37,4 +37,4 @@ jobs:
 - template: ci/azure-check-minrust.yml
   parameters:
     name: minrust
-    rust_version: 1.30.0
+    rust_version: 1.31.0
