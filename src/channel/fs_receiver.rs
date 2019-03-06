@@ -16,15 +16,12 @@ use notify::{self, Watcher};
 use std::sync::mpsc as std_mpsc;
 
 type Rx<T> = mpsc::UnboundedReceiver<T>;
-type Tx<T> = mpsc::UnboundedSender<T>;
-
-type StdRx<T> = std_mpsc::Receiver<T>;
-type StdTx<T> = std_mpsc::Sender<T>;
 
 struct FileWatcher {
     rx: Rx<notify::RawEvent>,
-    thread: std::thread::JoinHandle<()>,
-    watcher: notify::RecommendedWatcher,
+    // we don't use them but prevent call drop.
+    _thread: std::thread::JoinHandle<()>,
+    _watcher: notify::RecommendedWatcher,
 }
 
 impl FileWatcher {
@@ -45,8 +42,8 @@ impl FileWatcher {
         watcher.watch(path, notify::RecursiveMode::NonRecursive)?;
         Ok(FileWatcher {
             rx,
-            thread,
-            watcher,
+            _thread: thread,
+            _watcher: watcher,
         })
     }
 }
@@ -71,11 +68,11 @@ impl Stream for FileWatcher {
     }
 }
 
+/// Stream thats read items from file with monitoring changes.
 pub struct FileReciver<T> {
     reader: AsyncBincodeReader<File, T>,
     path: PathBuf,
     events_rx: Option<FileWatcher>,
-    at_the_end_of_file: bool,
 }
 
 pub fn new<T>(path: PathBuf) -> io::Result<FileReciver<T>> {
@@ -86,7 +83,6 @@ pub fn new<T>(path: PathBuf) -> io::Result<FileReciver<T>> {
         reader,
         path,
         events_rx: None,
-        at_the_end_of_file: false,
     })
 }
 
@@ -102,10 +98,6 @@ impl<T> FileReciver<T> {
 
         Ok(async_result)
     }
-
-    pub fn is_at_the_end_of_file(&self) -> bool {
-        self.at_the_end_of_file
-    }
 }
 
 impl<T> Stream for FileReciver<T>
@@ -119,17 +111,13 @@ where
             trace!("poll reciver!");
             // tutaj jest zwracane None jesli jestesmy na koncu pliku.
             let opt_item = match self.reader.poll()? {
-                Async::Ready(opt_item) => {
-                    self.at_the_end_of_file = false;
-                    opt_item
-                }
+                Async::Ready(opt_item) => opt_item,
                 Async::NotReady => return Ok(Async::NotReady),
             };
 
             if opt_item.is_some() {
                 return Ok(Async::Ready(opt_item));
             } else {
-                self.at_the_end_of_file = true;
                 // check file is read_only:
                 // - yes -- return None
                 // - no  -- return NotReady - more data can be added.
@@ -173,6 +161,7 @@ where
     }
 }
 
+/// Stream to read serialized items `T` from dir.
 pub struct DirReciver<T> {
     dir_path: PathBuf,
     file: FileReciver<T>,
@@ -212,10 +201,6 @@ impl<T> DirReciver<T> {
             },
             forward => forward,
         }
-    }
-
-    pub fn is_at_the_end_of_file(&self) -> bool {
-        self.file.is_at_the_end_of_file()
     }
 }
 

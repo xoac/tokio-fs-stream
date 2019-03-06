@@ -1,5 +1,10 @@
+
+[![Build Status](https://dev.azure.com/sylwesterrapala/tokio-fs-stream/_apis/build/status/xoac.tokio-fs-stream?branchName=master)](https://dev.azure.com/sylwesterrapala/tokio-fs-stream/_build/latest?definitionId=1&branchName=master)
+
 # WIP: tokio-fs-stream
 Backup sink on disk when it can't be properly flushed. 
+
+
 
 ## Usage by the example.
 Most feature example can be see here `examples/file_unordered.rs`.

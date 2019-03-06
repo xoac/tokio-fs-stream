@@ -7,18 +7,19 @@ mod error;
 mod fs_receiver;
 mod fs_sender;
 
-use fs_sender::UnboundedFileSender;
+use fs_receiver::{DirReciver, FileReciver};
+use fs_sender::{DirSender, UnboundedFileSender};
 
-/// This channel will send all items through file system. It's recommended to use channel.
+/// Create a pair of UnboundedFileSender and FileReciver.
+///
+/// [UnboundedFileSender](struct.UnboundedFileSender.html) implements Sink to allow you easy serialize items on disk.
+/// FileReciver implements Stream to easy deserlize items from file.
+///
+/// # Warning
+/// This can cause a big I/O traffic. Don't use too often.
 pub fn unbounded_file<T>(
     path: PathBuf,
-) -> Result<
-    (
-        fs_sender::UnboundedFileSender<T>,
-        fs_receiver::FileReciver<T>,
-    ),
-    io::Error,
->
+) -> Result<(UnboundedFileSender<T>, FileReciver<T>), io::Error>
 where
     T: Serialize + DeserializeOwned,
 {
@@ -28,10 +29,11 @@ where
     ))
 }
 
+/// Use dir as place to store files. It will be creating next file after last one is full.
 pub fn unordered_dir_fs<T>(
     dir_path: PathBuf,
     max_items_in_file: usize,
-) -> Result<(fs_sender::DirSender<T>, fs_receiver::DirReciver<T>), io::Error>
+) -> Result<(DirSender<T>, DirReciver<T>), io::Error>
 where
     T: Serialize + DeserializeOwned,
 {
@@ -43,7 +45,16 @@ where
 use fs_sender::{new_send_all, SendAllUnorderedFs};
 use futures::{Sink, Stream};
 
+/// Extension trait for Sink that allow easy to use this library.
 pub trait SinkFsExt: Sink {
+    /// Use `dir_path` to save items from `stream` if `self` (Sink) is not ready. When it will be
+    /// ready again items from file will be read.
+    ///
+    /// # Warning
+    /// This use SendAllUnorderedFs so it can reorder items!
+    ///
+    /// # Notes
+    /// It's useful to use it with futures-retry library. See `examples/file_unordered.rs`.
     fn send_all_fs_backpresure<U>(
         self,
         stream: U,
