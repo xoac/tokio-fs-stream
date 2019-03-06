@@ -13,13 +13,13 @@ jobs:
     name: test_tokio
     displayName: Test tokio
     cross: true
-    crates:
 
 - template: ci/azure-cargo-check.yml
   parameters:
     name: features
     displayName: Check feature permtuations
     rust: stable
+
 
 # Try cross compiling
 - template: ci/azure-cross-compile.yml

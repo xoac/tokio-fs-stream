@@ -11,8 +11,8 @@ jobs:
     parameters:
       rust_version: ${{ parameters.rust }}
 
-  - script: cargo check ${{ parameters.noDefaultFeatures }} --features ${{ feature }}
-    displayName: Check features = ${{ feature }}
+  - script: cargo check 
+    displayName: Check features
 
   - ${{ if parameters.benches }}:
     - script: cargo check --benches --all
