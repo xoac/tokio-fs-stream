@@ -1,6 +1,12 @@
 trigger: ["master"]
 pr: ["master"]
 
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      name: xoac/rust-azure-pipelines
+
 jobs:
 # Check formatting
 - template: ci/azure-rustfmt.yml
@@ -8,7 +14,7 @@ jobs:
     name: rustfmt
 
 # Test top level crate
-- template: ci/azure-test-stable.yml
+- template: ci/azure-test-stable.yml@templates
   parameters:
     name: test_tokio
     displayName: Test tokio
