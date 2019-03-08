@@ -6,7 +6,7 @@ resources:
     - repository: templates
       type: github
       name: xoac/rust-azure-pipelines
-      endpoint: github
+      endpoint: test
 
 jobs:
 # Check formatting
