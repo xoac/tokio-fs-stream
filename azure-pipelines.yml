@@ -1,63 +1,32 @@
-trigger: ["master"]
-pr: ["master"]
+trigger:
+  branches:
+    include: ['*']
+  tags:
+    include: ['*']
 
 resources:
   repositories:
-    - repository: templates
+    - repository: rust_pipelines
       type: github
       name: xoac/rust-azure-pipelines
-      ref: refs/heads/master
-      endpoint: PipelinesTemplates
+      # ref: refs/tags/v0.1.0-alpha.2
+      ref: refs/heads/master # TODO you may want to change it to refs/tags/TAG_NAME.
+      endpoint: PipelinesTemplates # TODO YOU NEED TO CHANGE THIS!
 
-jobs:
-# Check formatting
-- template: ci/rustfmt.yml@templates
-  parameters:
-    name: rustfmt
+stages: 
+- stage: check
+  displayName: "Quick checks"
+  jobs:
+  - template: ci/scenarios/check.yml@rust_pipelines
+    parameters: # You can make conditions here.
+      cargo-check: true
+      cargo-check-nigtly: true # this can fail and stage check still succeed
+      cargo-clippy: true
+      rustfmt: true
 
-# Test stable crate
-- template: ci/test-stable.yml@templates
-  parameters:
-    name: cargo_test
-    displayName: Test cargo
-    cross: true # Test on Windows and macOS
-
-# Cargo check
-- template: ci/cargo-check.yml@templates
-  parameters:
-    name: cargo_check
-    displayName: Cargo check
-    rust: stable
-
-# List of supported targets is available here: https://github.com/rust-embedded/cross#supported-targets
-- template: ci/cargo-cross.yml@templates
-  parameters:
-        name: cross
-        rust: stable
-        check_targets:
-                - i686-unknown-freebsd
-                # - thumbv7em-none-eabihf # bare metal require no_std! future enable.
-        test_targets:
-                - mips-unknown-linux-gnu
-                - armv7-unknown-linux-musleabihf
-
-# This represents the minimum Rust version supported.
-# Tests are not run as tests may require newer versions of rust.
-- template: ci/check-minrust.yml@templates
-  parameters:
-    name: minrust
-    rust_version: 1.31.0 # The 2018 edition
-
-# Deploy doc
-- template: ci/deploy-docs.yml@templates
-  parameters:
-    dependsOn:
-      - rustfmt
-      - cargo_test
-      - cargo_check
-      - cross
-    git:
-     user: xoac
-     email: auto_deploy@your_site.com
-     repo: https://github.com/xoac/tokio-fs-stream
-
+- stage: test
+  displayName: "Multi OS native tests"
+  jobs:
+  - template: ci/scenarios/test.yml@rust_pipelines
+    parameters:
+      min_rust_supported: 1.31
