@@ -16,7 +16,7 @@ notify = "4"
 custom_error = { version=">=1.4.1, < 1.7.1" }
 
 [dev-dependencies]
-pretty_env_logger = "0.3"
+pretty_env_logger = "0.4"
 futures-retry = "0.3"
 reqwest = "0.9"
 
