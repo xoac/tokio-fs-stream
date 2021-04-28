@@ -1,0 +1,21 @@
+version: 2
+updates:
+- package-ecosystem: cargo
+  directory: "/"
+  schedule:
+    interval: monthly
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: tokio
+    versions:
+    - 1.0.1
+    - 1.1.1
+  - dependency-name: futures-retry
+    versions:
+    - 0.5.0
+  - dependency-name: reqwest
+    versions:
+    - 0.10.0
+  - dependency-name: async-bincode
+    versions:
+    - 0.5.1
